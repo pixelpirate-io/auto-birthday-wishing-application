@@ -1,0 +1,107 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-address-book me-2"></i>Contact Management</h1>
+            <div>
+                <a href="{{ url_for('add_contact') }}" class="btn btn-primary btn-custom">
+                    <i class="fas fa-plus me-2"></i>Add New Contact
+                </a>
+                <a href="{{ url_for('check_birthdays') }}" class="btn btn-success btn-custom">
+                    <i class="fas fa-gift me-2"></i>Check Birthdays
+                </a>
+            </div>
+        </div>
+
+        {% if contacts %}
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-user me-2"></i>Name</th>
+                                <th><i class="fas fa-phone me-2"></i>Phone</th>
+                                <th><i class="fas fa-calendar-alt me-2"></i>Birthday</th>
+                                <th><i class="fas fa-cogs me-2"></i>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contact in contacts %}
+                            <tr>
+                                <td><strong>{{ contact.name }}</strong></td>
+                                <td>{{ contact.phone }}</td>
+                                <td>{{ contact.birthday_display }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('edit_contact', contact_id=contact.index) }}"
+                                            class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <button class="btn btn-outline-danger btn-sm"
+                                            onclick="confirmDelete('{{ contact.name }}', '{{ contact.index }}')">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Total contacts: {{ contacts|length }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card text-center">
+            <div class="card-body py-5">
+                <i class="fas fa-address-book fa-4x text-muted mb-3"></i>
+                <h3>No Contacts Yet</h3>
+                <p class="text-muted mb-4">Start by adding your first contact to never miss a birthday!</p>
+                <a href="{{ url_for('add_contact') }}" class="btn btn-primary btn-lg btn-custom">
+                    <i class="fas fa-plus me-2"></i>Add Your First Contact
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="contactName"></strong>?</p>
+                <p class="text-danger"><small>This action cannot be undone.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmDelete(name, contactId) {
+        document.getElementById('contactName').textContent = name;
+        document.getElementById('deleteForm').action = '/delete_contact/' + contactId;
+        new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    }
+</script>
+{% endblock %}
